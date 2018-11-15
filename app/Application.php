@@ -2,7 +2,7 @@
 
 namespace App;
 
-use App\Services\TicTacToe;
+use App\Services\Board;
 
 class Application
 {
@@ -21,15 +21,13 @@ class Application
     }
 
     /**
-     * Redirect calls to unavailable methods to the Tic Tac Toe object.
+     * Get the tic tac toe instance.
      *
-     * @param string $name
-     * @param array $arguments
-     * @return mixed
+     * @return Board
      */
-    public function __call(string $name, array $arguments)
+    public function getTicTacToe()
     {
-        return call_user_func_array([$this->ticTacToe, $name], $arguments);
+        return $this->ticTacToe;
     }
 
     /**
@@ -41,6 +39,6 @@ class Application
      */
     protected function initialize(array $boardState, int $size): void
     {
-        $this->ticTacToe = new TicTacToe($boardState, $size);
+        $this->ticTacToe = new Board($boardState, $size);
     }
 }

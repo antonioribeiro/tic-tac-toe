@@ -3,146 +3,57 @@
 namespace App\Services;
 
 use App\Contracts\MoveInterface;
-use App\Exceptions\WrongMoveException;
-use App\Exceptions\WrongBoardSizeException;
-use App\Exceptions\MoveNotAvailableException;
 
 class TicTacToe implements MoveInterface
 {
     /**
-     * The current board state.
+     * The current board.
      *
-     * @var array
+     * @var Board
      */
-    protected $boardState;
+    protected $board;
+
+    /**
+     * Our artificial intelligence being.
+     *
+     * @var Robot
+     */
+    protected $robot;
 
     /**
      * TicTacToe constructor.
      *
      * @param array $boardState
      * @param int $size
-     * @throws WrongBoardSizeException
+     * @throws \App\Exceptions\WrongBoardSizeException
      */
     public function __construct(array $boardState = [], int $size = 3)
     {
-        $this->boardState = $this->generateBoard($boardState, $size);
+        $this->initialize($boardState, $size);
     }
 
     /**
-     * Check if we have a correct board size.
+     * Get the board.
      *
-     * @param array $boardState
-     * @throws WrongBoardSizeException
+     * @return Board
      */
-    protected function checkBoardStateSize(array $boardState): void
+    public function getBoard(): Board
     {
-        // If board is null, no need to throw exceptions
-        foreach ($boardState as $line) {
-            if (count($line) !== count($boardState)) {
-                throw new WrongBoardSizeException();
-            }
-        }
+        return $this->board;
     }
 
     /**
-     * Check if move is available.
-     *
-     * @param int $col
-     * @param int $row
-     * @return bool
-     */
-    protected function moveIsAvailable(int $col, int $row): bool
-    {
-        return $this->boardState[$row][$col] == '';
-    }
-
-    /**
-     * If move is not available, throw exception.
-     *
-     * @param int $col
-     * @param int $row
-     * @throws MoveNotAvailableException
-     */
-    protected function throwIfMoveIsNotAvailable(int $col, int $row)
-    {
-        if (!$this->moveIsAvailable($col, $row)) {
-            throw new MoveNotAvailableException();
-        }
-    }
-
-    /**
-     * Check if a move is currently available.
-     *
-     * @param int $col
-     * @param int $row
-     * @throws WrongMoveException
-     */
-    protected function throwIfMoveIsNotGood(int $col, int $row)
-    {
-        if (
-            $row < 0 ||
-            $row > $this->getBoardSize() - 1 ||
-            $col < 0 ||
-            $col > $this->getBoardSize() - 1
-        ) {
-            throw new WrongMoveException();
-        }
-    }
-
-    /**
-     * Generate or use a defined board state.
+     * Initialize game.
      *
      * @param array $boardState
      * @param int $size
-     * @return array
-     * @throws WrongBoardSizeException
+     * @throws \App\Exceptions\WrongBoardSizeException
      */
-    protected function generateBoard(array $boardState, int $size): array
+    protected function initialize(array $boardState, int $size): void
     {
-        $this->checkBoardStateSize($boardState);
-
-        return count($boardState) == 0
-            ? $this->generateEmptyBoardState($size)
-            : $boardState;
-    }
-
-    /**
-     * Generate an empty board state
-     *
-     * @param int $size
-     * @return array
-     */
-    protected function generateEmptyBoardState(int $size): array
-    {
-        $state = [];
-
-        foreach (range(0, $size - 1) as $row) {
-            foreach (range(0, $size - 1) as $col) {
-                $state[$row][$col] = '';
-            }
-        }
-
-        return $state;
-    }
-
-    /**
-     * Get the current board size.
-     *
-     * @return int
-     */
-    protected function getBoardSize(): int
-    {
-        return count($this->boardState);
-    }
-
-    /**
-     * Board State getter
-     *
-     * @return array
-     */
-    public function getBoardState(): array
-    {
-        return $this->boardState;
+        $this->robot = new Robot(
+            ($this->board = new Board($boardState, $size))
+        );
     }
 
     /**
@@ -165,30 +76,10 @@ class TicTacToe implements MoveInterface
      */
     public function makeMove($boardState, $playerUnit = 'X'): array
     {
-        return $this->boardState;
-    }
+        $nextMove = $this->robot->makeMove($this->board->getState(), 'X');
 
-    /**
-     * Register a move in the current board.
-     *
-     * @param int $col
-     * @param int $row
-     * @param string $playerUnit
-     * @return TicTacToe
-     * @throws WrongMoveException
-     * @throws MoveNotAvailableException
-     */
-    public function registerMove(
-        int $col,
-        int $row,
-        string $playerUnit
-    ): TicTacToe {
-        $this->throwIfMoveIsNotGood($col, $row);
-
-        $this->throwIfMoveIsNotAvailable($col, $row);
-
-        $this->boardState[$row][$col] = $playerUnit;
-
-        return $this;
+        return $this->board
+            ->registerMove($nextMove[0], $nextMove[1], $nextMove[2])
+            ->getState();
     }
 }

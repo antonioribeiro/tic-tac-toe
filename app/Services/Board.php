@@ -5,9 +5,12 @@ namespace App\Services;
 use App\Exceptions\WrongMoveException;
 use App\Exceptions\WrongBoardSizeException;
 use App\Exceptions\MoveNotAvailableException;
+use App\Services\Traits\AvailableMoves;
 
 class Board
 {
+    use AvailableMoves;
+
     /**
      * The current board state.
      *
@@ -338,7 +341,7 @@ class Board
      */
     public function getAvailableMoves(): array
     {
-        return extract_available_moves($this->flatten());
+        return $this->filterAvailableMoves($this->flatten());
     }
 
     /**

@@ -3,9 +3,12 @@
 namespace App\Services;
 
 use App\Contracts\MoveInterface;
+use App\Services\Traits\AvailableMoves;
 
 class Robot implements MoveInterface
 {
+    use AvailableMoves;
+
     /**
      * @var Board
      */
@@ -32,7 +35,7 @@ class Robot implements MoveInterface
         array $state,
         string $playerUnit
     ): array {
-        $spots = extract_available_moves($state);
+        $spots = $this->filterAvailableMoves($state);
 
         $moves = [];
 
@@ -64,7 +67,7 @@ class Robot implements MoveInterface
      */
     protected function getWinnerOrDraw(array $state)
     {
-        if (count(extract_available_moves($state)) === 0) {
+        if (count($this->filterAvailableMoves($state)) === 0) {
             return ['score' => 0];
         } elseif ($this->isWinner($state, $this->us)) {
             return ['score' => 10];

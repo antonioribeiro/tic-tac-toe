@@ -28,6 +28,31 @@ class Board
     }
 
     /**
+     * UnFlatten a flattened board.
+     *
+     * @param array $boardState
+     * @return array
+     */
+    public function unFlatten(array $boardState)
+    {
+        if (
+            sizeof($boardState) === 0 ||
+            sizeof($boardState) !== sizeof($boardState, 1)
+        ) {
+            return $boardState;
+        }
+
+        $size = (int) sqrt(sizeof($boardState));
+
+        return array_chunk(
+            array_map(function ($value) {
+                return is_numeric($value) ? '' : $value;
+            }, $boardState),
+            $size
+        );
+    }
+
+    /**
      * Check if we have a correct board size.
      *
      * @param array $boardState
@@ -101,7 +126,7 @@ class Board
      */
     protected function generateBoard(array $boardState, int $size): array
     {
-        $this->checkBoardSize($boardState);
+        $this->checkBoardSize(($boardState = $this->unFlatten($boardState)));
 
         return $this->boardState =
             count($boardState) == 0
@@ -233,7 +258,7 @@ class Board
      * @param string $playerUnit
      * @return bool
      */
-    private function winByColumn(string $playerUnit): bool
+    protected function winByColumn(string $playerUnit): bool
     {
         foreach (range(0, $this->getSize() - 1) as $column) {
             if (
@@ -253,7 +278,7 @@ class Board
      * @param string $playerUnit
      * @return bool
      */
-    private function winByDiagonal(string $playerUnit): bool
+    protected function winByDiagonal(string $playerUnit): bool
     {
         $d1 = '';
         $d2 = '';
@@ -276,7 +301,7 @@ class Board
      * @param string $playerUnit
      * @return bool
      */
-    private function winByRow(string $playerUnit): bool
+    protected function winByRow(string $playerUnit): bool
     {
         foreach ($this->getState() as $row) {
             if (implode('', $row) === $this->getWinnerResult($playerUnit)) {
@@ -293,8 +318,37 @@ class Board
      * @param string $playerUnit
      * @return string
      */
-    private function getWinnerResult(string $playerUnit): string
+    protected function getWinnerResult(string $playerUnit): string
     {
         return str_repeat($playerUnit, $this->getSize());
+    }
+
+    /**
+     * Check if the board still has available moves.
+     *
+     * @return bool
+     */
+    public function hasAvailableMoves(): bool
+    {
+        return strlen(implode('', $this->flatten())) !== $this->getSize();
+    }
+
+    /**
+     * Get flatten array with available moves.
+     */
+    public function getAvailableMoves(): array
+    {
+        return extract_available_moves($this->flatten());
+    }
+
+    /**
+     * Convert a 1D move to a 2D.
+     *
+     * @param int $move
+     * @return array
+     */
+    public function convertTo2DMove(int $move): array
+    {
+        return [$move % $this->getSize(), abs($move / $this->getSize())];
     }
 }

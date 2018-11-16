@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Contracts\MoveInterface;
+use App\Exceptions\WrongBoardSizeException;
 
 class TicTacToe implements MoveInterface
 {
@@ -25,7 +26,7 @@ class TicTacToe implements MoveInterface
      *
      * @param array $boardState
      * @param int $size
-     * @throws \App\Exceptions\WrongBoardSizeException
+     * @throws WrongBoardSizeException
      */
     public function __construct(array $boardState = [], int $size = 3)
     {
@@ -49,11 +50,11 @@ class TicTacToe implements MoveInterface
      * @param int $size
      * @throws \App\Exceptions\WrongBoardSizeException
      */
-    protected function initialize(array $boardState, int $size): void
+    protected function initialize(array $boardState = [], int $size = 3): void
     {
-        $this->robot = new Robot(
-            ($this->board = new Board($boardState, $size))
-        );
+        $this->board = new Board($boardState, $size);
+
+        $this->robot = new Robot();
     }
 
     /**
@@ -76,7 +77,12 @@ class TicTacToe implements MoveInterface
      */
     public function makeMove($boardState, $playerUnit = 'X'): array
     {
-        $nextMove = $this->robot->makeMove($this->board->getState(), 'X');
+        $this->initialize($boardState);
+
+        $nextMove = $this->robot->makeMove(
+            $this->board->getState(),
+            $playerUnit
+        );
 
         return $this->board
             ->registerMove($nextMove[0], $nextMove[1], $nextMove[2])

@@ -185,4 +185,19 @@ class BoardTest extends \PHPUnit\Framework\TestCase
         $this->assertTrue($board->isWinner('O'));
         $this->assertFalse($board->isWinner('X'));
     }
+
+    public function testCanGetAvailableMoves()
+    {
+        $board = new Board([['X', 'X', 'X'], ['', 'X', ''], ['', '', 'X']]);
+
+        $this->assertEquals([3, 5, 6, 7], $board->getAvailableMoves());
+    }
+
+    public function testConvertMoveTo2D()
+    {
+        $this->assertEquals(
+            $this->board->getState(),
+            $this->board->unFlatten($this->board->flatten())
+        );
+    }
 }

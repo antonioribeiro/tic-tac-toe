@@ -39,12 +39,14 @@ class AITest extends \PHPUnit\Framework\TestCase
         $this->assertEquals($this->ticTacToe->getBoard()->getState(), $state);
     }
 
-    //    public function testCanMakeMoves()
-    //    {
-    //        $initial = [['', '', ''], ['', '', ''], ['', '', '']];
-    //
-    //        $withMove = $this->ticTacToe->makeMove($initial, 'X');
-    //
-    //        $this->assertNotEquals($initial, $withMove);
-    //    }
+    public function testCanMakeMoves()
+    {
+        $initial = [['O', 'O', ''], ['', 'X', ''], ['', '', '']];
+
+        $optimalMove = [['O', 'O', 'X'], ['', 'X', ''], ['', '', '']];
+
+        $withMove = $this->ticTacToe->makeMove($initial, 'X');
+
+        $this->assertEquals($withMove, $optimalMove);
+    }
 }

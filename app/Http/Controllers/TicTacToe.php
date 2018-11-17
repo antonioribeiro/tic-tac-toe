@@ -6,5 +6,6 @@ class TicTacToe
 {
     public function play()
     {
+        dd('$play');
     }
 }

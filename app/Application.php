@@ -3,16 +3,10 @@
 namespace App;
 
 use App\Services\Router;
-use App\Services\TicTacToe;
 use Symfony\Component\HttpFoundation\Request;
 
 class Application
 {
-    /**
-     * @var TicTacToe
-     */
-    private $ticTacToe;
-
     /**
      * @var Request
      */
@@ -25,37 +19,38 @@ class Application
 
     /**
      * Application constructor.
-     *
-     * @param array $boardState
-     * @param int $size
-     * @throws Exceptions\WrongBoardSizeException
      */
-    public function __construct(array $boardState = [], int $size = 3)
+    public function __construct()
     {
-        $this->initialize($boardState, $size);
+        $this->initialize();
     }
 
-    /**
-     * Get the tic tac toe instance.
-     *
-     * @return TicTacToe
-     */
-    public function getTicTacToe(): TicTacToe
+    private function breakControllerAndAction($action)
     {
-        return $this->ticTacToe;
+        preg_match('|(.*)@(.*)|', $action, $matches);
+
+        return [$matches[1], $matches[2]];
+    }
+
+    private function callAction(array $match)
+    {
+        list($controller, $method) = $this->breakControllerAndAction(
+            $match['action']
+        );
+
+        $controller = '\\App\\Http\\Controllers\\' . $controller;
+
+        return call_user_func_array(
+            [new $controller(), $method],
+            $match['vars']
+        );
     }
 
     /**
      * Initialize Tic Tac Toe object.
-     *
-     * @param array $boardState
-     * @param int $size
-     * @throws Exceptions\WrongBoardSizeException
      */
-    protected function initialize(array $boardState, int $size): void
+    protected function initialize(): void
     {
-        $this->ticTacToe = new TicTacToe($boardState, $size);
-
         $this->request = Request::createFromGlobals();
 
         $this->router = new Router();
@@ -66,8 +61,6 @@ class Application
      */
     public function run()
     {
-        dd($_GET, $_POST, [], $_COOKIE, $_FILES, $_SERVER);
-
-        dd($this->router->match($this->request));
+        return $this->callAction($this->router->match($this->request));
     }
 }

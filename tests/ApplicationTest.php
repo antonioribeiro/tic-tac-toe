@@ -3,7 +3,7 @@
 namespace App\Tests;
 
 use App\Application;
-use App\Services\Board;
+use App\Services\TicTacToe;
 
 class ApplicationTest extends \PHPUnit\Framework\TestCase
 {
@@ -25,7 +25,7 @@ class ApplicationTest extends \PHPUnit\Framework\TestCase
     public function testTicTacToeIsInstantiated()
     {
         $this->assertInstanceOf(
-            Board::class,
+            TicTacToe::class,
             $this->application->getTicTacToe()
         );
     }

@@ -2,11 +2,26 @@
 
 namespace App;
 
-use App\Services\Board;
+use App\Services\Router;
+use App\Services\TicTacToe;
+use Symfony\Component\HttpFoundation\Request;
 
 class Application
 {
-    protected $ticTacToe;
+    /**
+     * @var TicTacToe
+     */
+    private $ticTacToe;
+
+    /**
+     * @var Request
+     */
+    private $request;
+
+    /**
+     * @var Router
+     */
+    private $router;
 
     /**
      * Application constructor.
@@ -23,9 +38,9 @@ class Application
     /**
      * Get the tic tac toe instance.
      *
-     * @return Board
+     * @return TicTacToe
      */
-    public function getTicTacToe()
+    public function getTicTacToe(): TicTacToe
     {
         return $this->ticTacToe;
     }
@@ -39,6 +54,20 @@ class Application
      */
     protected function initialize(array $boardState, int $size): void
     {
-        $this->ticTacToe = new Board($boardState, $size);
+        $this->ticTacToe = new TicTacToe($boardState, $size);
+
+        $this->request = Request::createFromGlobals();
+
+        $this->router = new Router();
+    }
+
+    /**
+     * Run the application
+     */
+    public function run()
+    {
+        dd($_GET, $_POST, [], $_COOKIE, $_FILES, $_SERVER);
+
+        dd($this->router->match($this->request));
     }
 }

@@ -1,7 +1,9 @@
 <?php
 
-use App\TicTacToe;
+use App\Application;
 
-require '/path/to/vendor/autoload.php';
+require '../vendor/autoload.php';
 
-return (new TicTacToe())->run();
+$response = (new Application())->run();
+
+$response->send();

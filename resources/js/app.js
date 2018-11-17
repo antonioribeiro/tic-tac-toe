@@ -1,11 +1,14 @@
+import store from './store/store.js'
+
+require('./bootstrap')
+
 new Vue({
     el: '#vue-tic-tac-toe',
 
-    data: {},
+    store,
 
-    methods: {
+    data: {
     },
+
+    methods: {},
 })
-
-
-

@@ -57,10 +57,8 @@ Vue.use(Button)
 /**
  * Autoload Vue components
  */
-const files = require.context('./components/app/', true, /\.vue$/i)
+const files = require.context('./components/', true, /\.vue$/i)
 files.keys().map(key => {
     const name = 'App' + _.last(key.split('/')).split('.')[0]
     return Vue.component(name, files(key))
 })
-
-require('app')

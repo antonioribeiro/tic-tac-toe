@@ -11,3 +11,26 @@
 
 // Bootstrap
 @import '~bootstrap/scss/bootstrap';
+
+.content{
+  margin: .4vw 0;
+  background: lightblue;
+  padding: .4vw;
+}
+.tic-panel{
+  border: solid 2px black;
+  margin: .4vw 0;
+  background: #66A5AD;
+  padding: .4vw;
+}
+
+.tic-box{
+  border: solid black 1px;
+  font-size: 5vw;
+  background: #6AB187;
+  text-align: center;
+  color: lavender;
+}
+.tic-box:hover{
+  background: #20948B;
+}

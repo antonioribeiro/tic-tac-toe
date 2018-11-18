@@ -14,11 +14,11 @@ class TicTacToe
     protected $board;
 
     /**
-     * The current opponent player.
+     * The current player.
      *
      * @var string
      */
-    protected $opponent;
+    protected $player;
 
     /**
      * Our artificial intelligence being.
@@ -56,7 +56,7 @@ class TicTacToe
      */
     public function getOpponent(): string
     {
-        return $this->opponent;
+        return infer_opponent($this->getPlayer());
     }
 
     /**
@@ -66,7 +66,7 @@ class TicTacToe
      */
     public function getPlayer(): string
     {
-        return $this->getOpponent() === 'O' ? 'X' : 'O';
+        return $this->player;
     }
 
     /**
@@ -99,7 +99,7 @@ class TicTacToe
      *
      * @param int $col
      * @param int $row
-     * @param string $playerUnit
+     * @param string|null $playerUnit
      * @return TicTacToe
      * @throws \App\Exceptions\MoveNotAvailableException
      * @throws \App\Exceptions\WrongMoveException
@@ -107,9 +107,13 @@ class TicTacToe
     public function opponentMove(
         int $col,
         int $row,
-        string $playerUnit
+        string $playerUnit = null
     ): TicTacToe {
-        $this->board->registerMove($col, $row, $playerUnit);
+        $this->board->registerMove(
+            $col,
+            $row,
+            $playerUnit ?: $this->getOpponent()
+        );
 
         return $this;
     }
@@ -117,16 +121,19 @@ class TicTacToe
     /**
      * Play an AI move.
      *
-     * @param string $playerUnit
+     * @param string|null $playerUnit
      * @return $this
      * @throws \App\Exceptions\MoveNotAvailableException
      * @throws \App\Exceptions\WrongMoveException
      */
-    public function play(string $playerUnit = 'O')
+    public function play(string $playerUnit = null)
     {
-        $this->setOpponent($playerUnit);
+        $this->setPlayer($playerUnit);
 
-        $nextMove = $this->ai->makeMove($this->board->getState(), $playerUnit);
+        $nextMove = $this->ai->makeMove(
+            $this->board->getState(),
+            $this->getPlayer()
+        );
 
         if ($this->isValidMove($nextMove)) {
             $this->board->registerMove(
@@ -142,12 +149,16 @@ class TicTacToe
     /**
      * Set the current opponent player.
      *
-     * @param string $player
+     * @param string|null $player
      * @return TicTacToe
      */
-    public function setOpponent($player): TicTacToe
+    public function setPlayer($player): TicTacToe
     {
-        $this->opponent = $player;
+        $this->player = $player
+            ? $player
+            : ($this->player
+                ? $this->player
+                : 'O');
 
         return $this;
     }

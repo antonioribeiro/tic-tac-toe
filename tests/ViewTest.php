@@ -52,8 +52,8 @@ class ViewTest extends \PHPUnit\Framework\TestCase
         $this->assertNotEquals($initial, $final);
 
         $this->assertEquals(
-            [["O", "X", ""], ["", "X", ""], ["", "", ""]],
-            $final
+            json_encode([["O", "", "O"], ["", "X", ""], ["", "", "X"]]),
+            json_encode($final)
         );
     }
 }

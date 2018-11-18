@@ -47,9 +47,13 @@ class TicTacToe extends Base
     {
         return $this->jsonResponse(
             $this->makeBoardResult(
-                (new TicTacToeService($this->getParam('board')))->play(
-                    $this->getParam('player')
-                )
+                (new TicTacToeService($this->getParam('board')))
+                    ->setPlayer(infer_opponent($this->getParam('player')))
+                    ->opponentMove(
+                        $this->getParam('column'),
+                        $this->getParam('row')
+                    )
+                    ->play()
             )
         );
     }

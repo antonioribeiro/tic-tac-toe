@@ -3,7 +3,9 @@
 namespace App\Tests;
 
 use App\Exceptions\MethodNotAllowedException;
+use App\Exceptions\MethodNotFoundException;
 use App\Exceptions\NotFoundHttpException;
+use App\Http\Controllers\Home;
 use App\Services\Router;
 use App\Services\Request;
 
@@ -64,6 +66,18 @@ class RouterTest extends \PHPUnit\Framework\TestCase
         $this->expectException(MethodNotAllowedException::class);
 
         $this->router->match(
+            new Request([], [], [], [], [], ['REQUEST_URI' => '/play'])
+        );
+    }
+
+    public function testControllerActionMethodNotFound()
+    {
+        $this->expectException(MethodNotFoundException::class);
+
+        $this->router->callControllerMethod(
+            Home::class,
+            new Home(),
+            'store',
             new Request([], [], [], [], [], ['REQUEST_URI' => '/play'])
         );
     }

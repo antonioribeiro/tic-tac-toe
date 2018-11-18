@@ -2,12 +2,14 @@
 
 namespace App\Services;
 
+use App\Services\Traits\Actionable;
 use App\Exceptions\NotFoundHttpException;
 use App\Exceptions\MethodNotAllowedException;
-use App\Services\Request;
 
 class Router
 {
+    use Actionable;
+
     /**
      * @var \FastRoute\Dispatcher
      */

@@ -2,13 +2,10 @@
 
 namespace App\Services;
 
-use App\Services\Traits\Actionable;
 use App\Exceptions\MethodNotFoundException;
 
 class Application
 {
-    use Actionable;
-
     /**
      * @var Request
      */
@@ -51,6 +48,6 @@ class Application
      */
     public function run()
     {
-        return $this->callAction($this->router->match($this->request));
+        return $this->router->call($this->request);
     }
 }

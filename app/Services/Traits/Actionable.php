@@ -3,6 +3,7 @@
 namespace App\Services\Traits;
 
 use Closure;
+use App\Services\Request;
 use App\Exceptions\MethodNotFoundException;
 
 trait Actionable
@@ -10,39 +11,69 @@ trait Actionable
     /**
      * Break a controller@action string.
      *
-     * @param string $action
+     * @param Request $request
      * @return array
      */
-    protected function breakControllerAndAction(string $action)
+    protected function matchToControllerMethod(Request $request)
     {
-        preg_match('|(.*)@(.*)|', $action, $matches);
+        $routerMatched = $this->match($request);
 
-        $controllerClass = 'App\\Http\\Controllers\\' . $matches[1];
+        preg_match(
+            '|(.*)@(.*)|',
+            $routerMatched['action'],
+            $controllerAndAction
+        );
 
-        $controllerObject = new $controllerClass($this->request);
+        $controllerClass = 'App\\Http\\Controllers\\' . $controllerAndAction[1];
 
-        return [$controllerClass, $controllerObject, $matches[2]];
+        $controllerObject = new $controllerClass($request);
+
+        return [$controllerClass, $controllerObject, $controllerAndAction[2]];
     }
 
     /**
      * Call a controller action.
      *
-     * @param array $match
+     * @param Request $request
      * @return mixed
      * @throws MethodNotFoundException
      */
-    protected function callAction(array $match)
+    public function call(Request $request)
     {
         list(
             $controllerClass,
             $controllerObject,
             $method,
-        ) = $this->breakControllerAndAction($match['action']);
+        ) = $this->matchToControllerMethod($request);
 
+        return $this->callControllerMethod(
+            $controllerClass,
+            $controllerObject,
+            $method,
+            $request
+        );
+    }
+
+    /**
+     * Call a controller method.
+     *
+     * @param string $controllerClass
+     * @param object $controllerObject
+     * @param string $method
+     * @param Request $request
+     * @return mixed
+     * @throws MethodNotFoundException
+     */
+    public function callControllerMethod(
+        string $controllerClass,
+        object $controllerObject,
+        string $method,
+        Request $request
+    ) {
         if (method_exists($controllerObject, $method)) {
             return call_user_func_array(
                 $this->makeControllerMethodCallback($controllerObject, $method),
-                array_merge([$this->request], $match['vars'])
+                [$request]
             );
         }
 

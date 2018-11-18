@@ -39,13 +39,15 @@ class TicTacToe extends Base
      * Play and send back a new board.
      *
      * @return Response
+     * @throws \App\Exceptions\MoveNotAvailableException
      * @throws \App\Exceptions\WrongBoardSizeException
+     * @throws \App\Exceptions\WrongMoveException
      */
     public function play(): Response
     {
         return $this->jsonResponse(
             $this->makeBoardResult(
-                (new TicTacToeService($this->getParam('board')))->setOpponent(
+                (new TicTacToeService($this->getParam('board')))->play(
                     $this->getParam('player')
                 )
             )

@@ -122,8 +122,10 @@ class TicTacToe
      * @throws \App\Exceptions\MoveNotAvailableException
      * @throws \App\Exceptions\WrongMoveException
      */
-    public function play(string $playerUnit)
+    public function play(string $playerUnit = 'O')
     {
+        $this->setOpponent($playerUnit);
+
         $nextMove = $this->ai->makeMove($this->board->getState(), $playerUnit);
 
         if ($this->isValidMove($nextMove)) {

@@ -27,7 +27,11 @@ class ViewTest extends \PHPUnit\Framework\TestCase
             ($request = new Request(
                 [],
                 [
-                    "board" => "X,O,,,,,,,",
+                    "board" => ($initial = [
+                        ["O", "", ""],
+                        ["", "X", ""],
+                        ["", "", ""],
+                    ]),
                     "column" => "2",
                     "row" => "2",
                     "player" => "X",
@@ -43,6 +47,13 @@ class ViewTest extends \PHPUnit\Framework\TestCase
 
         $this->assertInstanceOf(Response::class, $response);
 
-        $this->assertContains('HTTP/1.0 200 OK', (string) $response);
+        $final = json_decode($response->getContent(), true)['board'];
+
+        $this->assertNotEquals($initial, $final);
+
+        $this->assertEquals(
+            [["O", "X", ""], ["", "X", ""], ["", "", ""]],
+            $final
+        );
     }
 }

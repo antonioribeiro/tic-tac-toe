@@ -3,7 +3,7 @@
         <div class="container-fluid">
             <div class="row mt-5 ml-2 mr-2">
                 <div class="col-12 col-sm-3 mb-3">
-                    <table>
+                    <table class="mx-auto mb-4">
                         <tr v-for="(row, rowKey) in board">
                             <td
                                 v-for="(column, columnKey) in row"
@@ -30,14 +30,14 @@
                             <div class="card-deck mb-3 text-center">
                                 <div class="card mb-4 shadow-sm">
                                     <div class="card-header">
-                                        <h4 class="my-0 font-weight-normal">
+                                        <h5 class="my-0 font-weight-normal">
                                             Players and Score
-                                        </h4>
+                                        </h5>
                                     </div>
                                     <div class="card-body">
                                         <div class="row">
-                                            <div class="mt-3 col-8 offset-2">
-                                                <h1
+                                            <div class="col-12">
+                                                <h2
                                                     class="card-title pricing-card-title text-left"
                                                 >
                                                     <div
@@ -51,8 +51,8 @@
                                                             score.human
                                                         }})</small
                                                     >
-                                                </h1>
-                                                <h1
+                                                </h2>
+                                                <h2
                                                     class="card-title pricing-card-title text-left"
                                                 >
                                                     <div
@@ -64,14 +64,14 @@
                                                     <small class="text-muted"
                                                         >({{ score.ai }})</small
                                                     >
-                                                </h1>
+                                                </h2>
                                             </div>
                                         </div>
 
                                         <button
                                             @click="restart()"
                                             :class="
-                                                'mt-4 btn btn-block btn-' +
+                                                'mt-2 btn btn-block btn-' +
                                                     (playing || !started
                                                         ? 'secondary'
                                                         : 'danger')

@@ -31,7 +31,7 @@
                                 <div class="card mb-4 shadow-sm">
                                     <div class="card-header">
                                         <h4 class="my-0 font-weight-normal">
-                                            Players
+                                            Players and Score
                                         </h4>
                                     </div>
                                     <div class="card-body">
@@ -189,6 +189,11 @@ export default {
                 }
 
                 if (this.game.result === 'L') {
+                    this.robot++
+                }
+
+                if (this.game.result === 'D') {
+                    this.human++
                     this.robot++
                 }
             }

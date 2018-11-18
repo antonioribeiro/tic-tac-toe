@@ -2,7 +2,6 @@
 
 namespace App\Services;
 
-use App\Contracts\RegisterMoveInterface;
 use App\Exceptions\WrongBoardSizeException;
 
 class TicTacToe

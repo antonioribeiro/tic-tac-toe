@@ -88,7 +88,7 @@ class AI implements MoveInterface
      * Check if there's a winner and calculate score.
      *
      * @param array $state
-     * @return array|bool
+     * @return array|false
      * @throws \App\Exceptions\WrongBoardSizeException
      */
     protected function getWinnerOrDraw(array $state)
@@ -182,9 +182,7 @@ class AI implements MoveInterface
      */
     protected function minimax(array $state, string $playerUnit)
     {
-        $result = $this->getWinnerOrDraw($state);
-
-        if ($result !== false) {
+        if (($result = $this->getWinnerOrDraw($state)) !== false) {
             return $result;
         }
 

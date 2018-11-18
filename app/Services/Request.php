@@ -149,12 +149,12 @@ class Request
         array $server,
         $content
     ) {
-        return !$query &&
-            !$request &&
-            !$attributes &&
-            !$cookies &&
-            !$files &&
-            !$server &&
-            !$content;
+        return empty($query) &&
+            empty($request) &&
+            empty($attributes) &&
+            empty($cookies) &&
+            empty($files) &&
+            empty($server) &&
+            empty($content);
     }
 }

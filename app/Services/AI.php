@@ -50,9 +50,11 @@ class AI implements MoveInterface
     ): array {
         $spots = $this->filterAvailableMoves($state);
 
+        $spotCount = count($spots);
+
         $moves = [];
 
-        for ($i = 0; $i < count($spots); $i++) {
+        for ($i = 0; $i < $spotCount; $i++) {
             $move = ['index' => $state[$spots[$i]]];
 
             $state[$spots[$i]] = $playerUnit;
@@ -180,7 +182,9 @@ class AI implements MoveInterface
      */
     protected function minimax(array $state, string $playerUnit)
     {
-        if (($result = $this->getWinnerOrDraw($state)) !== false) {
+        $result = $this->getWinnerOrDraw($state);
+
+        if ($result !== false) {
             return $result;
         }
 
@@ -201,9 +205,11 @@ class AI implements MoveInterface
     {
         $bestScore = 1000 * ($playerUnit == $this->us ? -1 : 1);
 
+        $moveCount = count($moves);
+
         $bestMove = 0;
 
-        for ($i = 0; $i < count($moves); $i++) {
+        for ($i = 0; $i < $moveCount; $i++) {
             $currentScore = $moves[$i]['score'];
 
             $isBestScore =
@@ -250,7 +256,7 @@ class AI implements MoveInterface
      * @return bool
      * @throws \App\Exceptions\WrongBoardSizeException
      */
-    function isWinner($boardState, $playerUnit): bool
+    public function isWinner($boardState, $playerUnit): bool
     {
         return (new Board($boardState))->isWinner($playerUnit);
     }

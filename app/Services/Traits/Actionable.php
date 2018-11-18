@@ -4,39 +4,20 @@ namespace App\Services\Traits;
 
 use Closure;
 use App\Services\Request;
+use App\Exceptions\NotFoundHttpException;
 use App\Exceptions\MethodNotFoundException;
+use App\Exceptions\MethodNotAllowedException;
 
 trait Actionable
 {
-    /**
-     * Break a controller@action string.
-     *
-     * @param Request $request
-     * @return array
-     */
-    protected function matchToControllerMethod(Request $request)
-    {
-        $routerMatched = $this->match($request);
-
-        preg_match(
-            '|(.*)@(.*)|',
-            $routerMatched['action'],
-            $controllerAndAction
-        );
-
-        $controllerClass = 'App\\Http\\Controllers\\' . $controllerAndAction[1];
-
-        $controllerObject = new $controllerClass($request);
-
-        return [$controllerClass, $controllerObject, $controllerAndAction[2]];
-    }
-
     /**
      * Call a controller action.
      *
      * @param Request $request
      * @return mixed
+     * @throws MethodNotAllowedException
      * @throws MethodNotFoundException
+     * @throws NotFoundHttpException
      */
     public function call(Request $request)
     {
@@ -96,5 +77,40 @@ trait Actionable
         return function (...$parameters) use ($controllerObject, $method) {
             return $controllerObject->$method(...$parameters);
         };
+    }
+
+    /**
+     * Match the route coming from a request.
+     *
+     * @param Request $request
+     * @return array
+     * @throws MethodNotAllowedException
+     * @throws NotFoundHttpException
+     */
+    abstract public function match(Request $request);
+
+    /**
+     * Break a controller@action string.
+     *
+     * @param Request $request
+     * @return array
+     * @throws MethodNotAllowedException
+     * @throws NotFoundHttpException
+     */
+    protected function matchToControllerMethod(Request $request)
+    {
+        $routerMatched = $this->match($request);
+
+        preg_match(
+            '|(.*)@(.*)|',
+            $routerMatched['action'],
+            $controllerAndAction
+        );
+
+        $controllerClass = 'App\\Http\\Controllers\\' . $controllerAndAction[1];
+
+        $controllerObject = new $controllerClass($request);
+
+        return [$controllerClass, $controllerObject, $controllerAndAction[2]];
     }
 }

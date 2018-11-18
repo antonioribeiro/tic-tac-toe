@@ -2,7 +2,7 @@
 
 namespace App\Tests;
 
-use App\Application;
+use App\Services\Application;
 use App\Services\Request;
 use Symfony\Component\HttpFoundation\Response;
 

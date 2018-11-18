@@ -3,7 +3,7 @@
 ## Requires
 
 ```
-PHP >=7.1
+PHP 7.2 or 7.3RC
 ```
 
 ## Installing

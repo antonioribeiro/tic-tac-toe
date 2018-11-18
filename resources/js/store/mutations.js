@@ -4,6 +4,8 @@ export function setGame(state, payload) {
 
 export function restart(state) {
     state.game.board = state.emptyBoard
+
+    state.game.finished = false
 }
 
 export function addPointForHuman(state) {

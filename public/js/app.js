@@ -48384,8 +48384,7 @@ var __newBoard = [['', '', ''], ['', '', ''], ['', '', '']];
 
 var state = {
   game: {
-    board: __newBoard,
-    emptyBoard: __newBoard
+    board: __newBoard
   },
 
   score: {
@@ -48729,6 +48728,8 @@ function setGame(state, payload) {
 
 function restart(state) {
     state.game.board = state.emptyBoard;
+
+    state.game.finished = false;
 }
 
 function addPointForHuman(state) {
@@ -81334,6 +81335,9 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 //
 //
 //
+//
+//
+//
 
 
 
@@ -81529,7 +81533,7 @@ var render = function() {
               ])
             ]),
             _vm._v(" "),
-            _vm.game.finished
+            _vm.game.finished && true
               ? _c("div", { staticClass: "col-sm-12 col-md-4" }, [
                   _c(
                     "div",

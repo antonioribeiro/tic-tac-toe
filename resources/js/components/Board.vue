@@ -93,7 +93,10 @@
                             </div>
                         </div>
 
-                        <div class="col-sm-12 col-md-4" v-if="game.finished">
+                        <div
+                            class="col-sm-12 col-md-4"
+                            v-if="game.finished && true"
+                        >
                             <div
                                 :class="
                                     'jumbotron text-white rounded text-center' +

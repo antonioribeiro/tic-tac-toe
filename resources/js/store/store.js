@@ -24,7 +24,6 @@ const __newBoard = [['', '', ''], ['', '', ''], ['', '', '']]
 const state = {
     game: {
         board: __newBoard,
-        emptyBoard: __newBoard,
     },
 
     score: {

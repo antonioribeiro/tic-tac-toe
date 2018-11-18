@@ -25,8 +25,8 @@ composer stan
 
 or 
 
-vendor/bin/phpstan analyse src tests
-```s
+vendor/bin/phpstan analyse --level=7 app tests
+```
 
 
 

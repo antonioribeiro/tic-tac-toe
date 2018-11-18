@@ -17,7 +17,7 @@ class TicTacToe
     /**
      * The current opponent player.
      *
-     * @var Board
+     * @var string
      */
     protected $opponent;
 
@@ -136,25 +136,6 @@ class TicTacToe
     public function getPlayer(): string
     {
         return $this->getOpponent() === 'O' ? 'X' : 'O';
-    }
-
-    /**
-     * Register an opponent move and make AI play a move.
-     *
-     * @return array
-     * @throws \App\Exceptions\MoveNotAvailableException
-     * @throws \App\Exceptions\WrongMoveException
-     */
-    protected function registerAndPlay(): array
-    {
-        return $this->opponentMove(
-            $this->getParam('column'),
-            $this->getParam('row'),
-            $this->getOpponent()
-        )
-            ->play($this->getPlayer())
-            ->getBoard()
-            ->getState();
     }
 
     /**

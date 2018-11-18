@@ -48728,7 +48728,7 @@ function setGame(state, payload) {
 }
 
 function restart(state) {
-    state.game.board = state.game.emptyBoard;
+    state.game.board = state.emptyBoard;
 }
 
 function addPointForHuman(state) {

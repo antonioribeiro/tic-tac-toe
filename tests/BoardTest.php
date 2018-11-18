@@ -118,7 +118,7 @@ class BoardTest extends \PHPUnit\Framework\TestCase
         );
     }
 
-    public function testCanWinnRow()
+    public function testCanWinGame()
     {
         $board = new Board([['X', 'X', 'X'], ['', 'X', ''], ['', '', 'X']]);
         $this->assertTrue($board->isWinner('X'));
@@ -140,9 +140,13 @@ class BoardTest extends \PHPUnit\Framework\TestCase
         ]);
         $this->assertTrue($board->isWinner('O'));
         $this->assertFalse($board->isWinner('X'));
+
+        $board = new Board(["O", "O", "X", "O", "X", "X", "", "X", "O"]);
+        $this->assertFalse($board->isWinner('O'));
+        $this->assertFalse($board->isWinner('X'));
     }
 
-    public function testCanWinnColumn()
+    public function testCanWinByColumn()
     {
         $board = new Board([['X', '', ''], ['X', '', 'O'], ['X', '', 'O']]);
         $this->assertTrue($board->isWinner('X'));
@@ -199,5 +203,76 @@ class BoardTest extends \PHPUnit\Framework\TestCase
             $this->board->getState(),
             $this->board->unFlatten($this->board->flatten())
         );
+    }
+
+    public function testCanGenerateBoardFromString()
+    {
+        $board = new Board('O,,,,X,,,,');
+
+        $this->assertEquals(
+            [['O', '', ''], ['', 'X', ''], ['', '', '']],
+            $board->getState()
+        );
+    }
+
+    public function testCanCheckIfItHasAvailableMoves()
+    {
+        $board = new Board([['O', 'X', 'O'], ['X', 'X', 'O'], ['O', 'O', 'X']]);
+        $this->assertFalse($board->hasAvailableMoves());
+
+        $board = new Board([['O', 'X', 'O'], ['X', '', 'O'], ['O', 'O', 'X']]);
+        $this->assertTrue($board->hasAvailableMoves());
+    }
+
+    public function testCanCheckIfItsADraw()
+    {
+        $board = new Board([['O', 'X', 'O'], ['X', 'X', 'O'], ['O', 'O', 'X']]);
+        $this->assertTrue($board->isDraw());
+        $this->assertFalse($board->isWinner('X'));
+        $this->assertFalse($board->isWinner('O'));
+
+        $board = new Board([['O', 'O', 'O'], ['X', 'O', 'X'], ['O', 'X', 'O']]);
+        $this->assertFalse($board->isDraw());
+        $this->assertFalse($board->isWinner('X'));
+        $this->assertTrue($board->isWinner('O'));
+
+        $board = new Board([["X", "O", "O"], ["O", "X", "X"], ["O", "X", "X"]]);
+        $this->assertFalse($board->isDraw());
+        $this->assertTrue($board->isWinner('X'));
+        $this->assertFalse($board->isWinner('O'));
+
+        $board = new Board([["X", "O", "O"], ["O", "X", "X"], ["O", "X", "O"]]);
+        $this->assertTrue($board->isDraw());
+        $this->assertFalse($board->isWinner('X'));
+        $this->assertFalse($board->isWinner('O'));
+    }
+
+    public function testCanCheckGameIsFinished()
+    {
+        $board = new Board(["X", "O", "O", "O", "", "", "", "", "X"]);
+
+        $this->assertFalse($board->isFinished());
+
+        $board = new Board(["X", "O", "O", "O", "X", "", "", "", "X"]);
+
+        $this->assertTrue($board->isFinished());
+    }
+
+    public function testCanCheckBoardResult()
+    {
+        $board = new Board([["O", "", ""], ["", "X", ""], ["", "", ""]]);
+
+        $this->assertEquals(null, $board->getResultFor('X'));
+
+        $board = new Board(["X", "O", "O", "O", "X", "", "", "", "X"]);
+
+        $this->assertEquals('W', $board->getResultFor('X'));
+    }
+
+    public function testCanLooseAGame()
+    {
+        $board = new Board(["X", "X", "X", "O", "X", "", "", "", "O"]);
+
+        $this->assertEquals('L', $board->getResultFor('O'));
     }
 }

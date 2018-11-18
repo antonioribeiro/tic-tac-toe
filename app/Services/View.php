@@ -2,8 +2,6 @@
 
 namespace App\Services;
 
-use Symfony\Component\HttpFoundation\Response;
-
 class View
 {
     /**
@@ -16,15 +14,6 @@ class View
 
     public function make($name)
     {
-        return $this->makeResponse(
-            file_get_contents($this->getViewDirectory() . "/{$name}.html")
-        );
-    }
-
-    private function makeResponse($content)
-    {
-        return new Response($content, Response::HTTP_OK, array(
-            'content-type' => 'text/html',
-        ));
+        return file_get_contents($this->getViewDirectory() . "/{$name}.html");
     }
 }

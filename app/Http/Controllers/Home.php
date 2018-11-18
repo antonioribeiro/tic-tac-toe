@@ -2,12 +2,15 @@
 
 namespace App\Http\Controllers;
 
-use App\Services\View;
-
-class Home
+class Home extends Base
 {
+    /**
+     * Render the home page.
+     *
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
     public function index()
     {
-        return (new View())->make('home');
+        return $this->response($this->view->make('home'));
     }
 }

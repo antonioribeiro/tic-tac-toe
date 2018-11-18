@@ -2,11 +2,15 @@
 
 namespace App\Tests;
 
+use App\Exceptions\MethodNotAllowedException;
+use App\Exceptions\NotFoundHttpException;
 use App\Services\Router;
-use Symfony\Component\HttpFoundation\Request;
+use App\Services\Request;
 
 class RouterTest extends \PHPUnit\Framework\TestCase
 {
+    protected $router;
+
     public function setUp()
     {
         $this->router = new Router();
@@ -15,11 +19,52 @@ class RouterTest extends \PHPUnit\Framework\TestCase
     public function testCanMatchARoute()
     {
         $matched = $this->router->match(
-            new Request([], [], [], [], [], ['REQUEST_URI' => '/play'])
+            new Request([], [], [], [], [], ['REQUEST_URI' => '/'])
+        );
+
+        $this->assertEquals($matched['action'], 'Home@index');
+
+        $this->assertEquals($matched['vars'], []);
+    }
+
+    public function testCanPostToARoute()
+    {
+        $matched = $this->router->match(
+            new Request(
+                [],
+                [],
+                [],
+                [],
+                [],
+                ['REQUEST_METHOD' => 'POST', 'REQUEST_URI' => '/play']
+            )
         );
 
         $this->assertEquals($matched['action'], 'TicTacToe@play');
+    }
 
-        $this->assertEquals($matched['vars'], []);
+    public function testThrowsExceptionOnStrangeBoardLayout()
+    {
+        $this->expectException(NotFoundHttpException::class);
+
+        $matched = $this->router->match(
+            new Request(
+                [],
+                [],
+                [],
+                [],
+                [],
+                ['REQUEST_METHOD' => 'POST', 'REQUEST_URI' => '/notFound']
+            )
+        );
+    }
+
+    public function testInvalidMethod()
+    {
+        $this->expectException(MethodNotAllowedException::class);
+
+        $this->router->match(
+            new Request([], [], [], [], [], ['REQUEST_URI' => '/play'])
+        );
     }
 }

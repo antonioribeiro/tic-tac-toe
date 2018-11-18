@@ -2,10 +2,10 @@
 
 namespace App\Services;
 
-use App\Contracts\MoveInterface;
+use App\Contracts\RegisterMoveInterface;
 use App\Exceptions\WrongBoardSizeException;
 
-class TicTacToe implements MoveInterface
+class TicTacToe
 {
     /**
      * The current board.
@@ -17,18 +17,18 @@ class TicTacToe implements MoveInterface
     /**
      * Our artificial intelligence being.
      *
-     * @var Robot
+     * @var AI
      */
-    protected $robot;
+    protected $ai;
 
     /**
      * TicTacToe constructor.
      *
-     * @param array $boardState
+     * @param array|string $boardState
      * @param int $size
      * @throws WrongBoardSizeException
      */
-    public function __construct(array $boardState = [], int $size = 3)
+    public function __construct($boardState = [], int $size = 3)
     {
         $this->initialize($boardState, $size);
     }
@@ -46,46 +46,68 @@ class TicTacToe implements MoveInterface
     /**
      * Initialize game.
      *
-     * @param array $boardState
+     * @param array|string $boardState
      * @param int $size
      * @throws \App\Exceptions\WrongBoardSizeException
      */
-    protected function initialize(array $boardState = [], int $size = 3): void
+    protected function initialize($boardState = [], int $size = 3): void
     {
         $this->board = new Board($boardState, $size);
 
-        $this->robot = new Robot();
+        $this->ai = new AI();
     }
 
     /**
-     * Makes a move using the $boardState
-     * $boardState contains 2 dimensional array of the game field
-     * X represents one team, O - the other team, empty  string means field is not yet taken.
-     * example
-     * [
-     *   ['X', 'O', '']
-     *   ['X', 'O', 'O']
-     *   ['', '', '']
-     * ]
-     * Returns an array, containing x and y coordinates for next move, and the unit that now occupies it.
-     * Example: [2, 0, 'O'] - upper right corner - O player
+     * Check if an AI move returned a winner or draw.
      *
-     * @param array $boardState Current board state
-     * @param string $playerUnit Player unit representation
-     *
-     * @return array
+     * @param array $move
+     * @return bool
      */
-    public function makeMove($boardState, $playerUnit = 'X'): array
+    protected function isValidMove(array $move)
     {
-        $this->initialize($boardState);
+        return $move[0] !== null;
+    }
 
-        $nextMove = $this->robot->makeMove(
-            $this->board->getState(),
-            $playerUnit
-        );
+    /**
+     * Register a move in the current board.
+     *
+     * @param int $col
+     * @param int $row
+     * @param string $playerUnit
+     * @return TicTacToe
+     * @throws \App\Exceptions\MoveNotAvailableException
+     * @throws \App\Exceptions\WrongMoveException
+     */
+    public function opponentMove(
+        int $col,
+        int $row,
+        string $playerUnit
+    ): TicTacToe {
+        $this->board->registerMove($col, $row, $playerUnit);
 
-        return $this->board
-            ->registerMove($nextMove[0], $nextMove[1], $nextMove[2])
-            ->getState();
+        return $this;
+    }
+
+    /**
+     * Play an AI move.
+     *
+     * @param string $playerUnit
+     * @return $this
+     * @throws \App\Exceptions\MoveNotAvailableException
+     * @throws \App\Exceptions\WrongMoveException
+     */
+    public function play(string $playerUnit)
+    {
+        $nextMove = $this->ai->makeMove($this->board->getState(), $playerUnit);
+
+        if ($this->isValidMove($nextMove)) {
+            $this->board->registerMove(
+                $nextMove[0],
+                $nextMove[1],
+                $nextMove[2]
+            );
+        }
+
+        return $this;
     }
 }

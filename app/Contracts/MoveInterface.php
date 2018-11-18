@@ -22,5 +22,5 @@ interface MoveInterface
      *
      * @return array
      */
-    public function makeMove($boardState, $playerUnit = 'X');
+    public function makeMove($boardState, $playerUnit = 'O');
 }

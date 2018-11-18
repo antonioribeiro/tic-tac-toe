@@ -7,8 +7,7 @@ new Vue({
 
     store,
 
-    data: {
-    },
+    data: {},
 
     methods: {},
 })

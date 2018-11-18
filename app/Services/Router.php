@@ -2,16 +2,16 @@
 
 namespace App\Services;
 
-use App\Exceptions\MethodNotFoundException;
+use App\Exceptions\NotFoundHttpException;
 use App\Exceptions\MethodNotAllowedException;
-use Symfony\Component\HttpFoundation\Request;
+use App\Services\Request;
 
 class Router
 {
     /**
      * @var \FastRoute\Dispatcher
      */
-    private $router;
+    protected $router;
 
     /**
      * Router constructor.
@@ -24,7 +24,7 @@ class Router
     /**
      * Initialize router.
      */
-    private function initialize()
+    protected function initialize()
     {
         $this->initializeRoutes();
     }
@@ -32,14 +32,14 @@ class Router
     /**
      * Initialize all routes.
      */
-    private function initializeRoutes()
+    protected function initializeRoutes()
     {
         $this->router = \FastRoute\simpleDispatcher(function (
             \FastRoute\RouteCollector $router
         ) {
             $router->addRoute('GET', '/', 'Home@index');
 
-            $router->addRoute('GET', '/play', 'TicTacToe@play');
+            $router->addRoute('POST', '/play', 'TicTacToe@play');
         });
     }
 
@@ -49,7 +49,7 @@ class Router
      * @param Request $request
      * @return array
      * @throws MethodNotAllowedException
-     * @throws MethodNotFoundException
+     * @throws NotFoundHttpException
      */
     public function match(Request $request)
     {
@@ -73,20 +73,21 @@ class Router
     /**
      * Build matched route info.
      *
-     * @param $routeInfo
+     * @param array $routeInfo
      * @return array
      * @throws MethodNotAllowedException
-     * @throws MethodNotFoundException
+     * @throws NotFoundHttpException
      */
-    protected function routeInfo($routeInfo): array
+    protected function routeInfo(array $routeInfo): array
     {
-        switch ($routeInfo[0]) {
-            case \FastRoute\Dispatcher::NOT_FOUND:
-                throw new MethodNotFoundException();
-            case \FastRoute\Dispatcher::METHOD_NOT_ALLOWED:
-                throw new MethodNotAllowedException();
-            case \FastRoute\Dispatcher::FOUND:
-                return ['action' => $routeInfo[1], 'vars' => $routeInfo[2]];
+        if ($routeInfo[0] == \FastRoute\Dispatcher::NOT_FOUND) {
+            throw new NotFoundHttpException();
         }
+
+        if ($routeInfo[0] == \FastRoute\Dispatcher::METHOD_NOT_ALLOWED) {
+            throw new MethodNotAllowedException();
+        }
+
+        return ['action' => $routeInfo[1], 'vars' => $routeInfo[2]];
     }
 }

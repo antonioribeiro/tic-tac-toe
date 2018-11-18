@@ -3,9 +3,9 @@
 namespace App\Services;
 
 use App\Exceptions\WrongMoveException;
+use App\Services\Traits\AvailableMoves;
 use App\Exceptions\WrongBoardSizeException;
 use App\Exceptions\MoveNotAvailableException;
-use App\Services\Traits\AvailableMoves;
 
 class Board
 {
@@ -21,13 +21,22 @@ class Board
     /**
      * Board constructor.
      *
-     * @param array $boardState
+     * @param array|string $boardState
      * @param int $size
      * @throws WrongBoardSizeException
      */
-    public function __construct(array $boardState = [], int $size = 3)
+    public function __construct($boardState = [], int $size = 3)
     {
         $this->generateBoard($boardState, $size);
+    }
+
+    protected function strigBoardStateToArray($boardState)
+    {
+        if (is_array($boardState)) {
+            return $boardState;
+        }
+
+        return explode(',', $boardState);
     }
 
     /**
@@ -122,14 +131,18 @@ class Board
     /**
      * Generate or use a defined board state.
      *
-     * @param array $boardState
+     * @param array|string $boardState
      * @param int $size
      * @return array
      * @throws WrongBoardSizeException
      */
-    protected function generateBoard(array $boardState, int $size): array
+    protected function generateBoard($boardState, int $size): array
     {
-        $this->checkBoardSize(($boardState = $this->unFlatten($boardState)));
+        $this->checkBoardSize(
+            ($boardState = $this->unFlatten(
+                $this->strigBoardStateToArray($boardState)
+            ))
+        );
 
         return $this->boardState =
             count($boardState) == 0
@@ -172,29 +185,6 @@ class Board
      * @return array
      */
     public function getState(): array
-    {
-        return $this->boardState;
-    }
-
-    /**
-     * Makes a move using the $boardState
-     * $boardState contains 2 dimensional array of the game field
-     * X represents one team, O - the other team, empty  string means field is not yet taken.
-     * example
-     * [
-     *   ['X', 'O', '']
-     *   ['X', 'O', 'O']
-     *   ['', '', '']
-     * ]
-     * Returns an array, containing x and y coordinates for next move, and the unit that now occupies it.
-     * Example: [2, 0, 'O'] - upper right corner - O player
-     *
-     * @param array $boardState Current board state
-     * @param string $playerUnit Player unit representation
-     *
-     * @return array
-     */
-    public function makeMove($boardState, $playerUnit = 'X'): array
     {
         return $this->boardState;
     }
@@ -250,25 +240,100 @@ class Board
      */
     public function isWinner(string $playerUnit)
     {
-        return $this->winByRow($playerUnit) ||
-            $this->winByColumn($playerUnit) ||
-            $this->winByDiagonal($playerUnit);
+        return $this->winByRow($playerUnit) !== false ||
+            $this->winByColumn($playerUnit) !== false ||
+            $this->winByDiagonal($playerUnit) !== false;
+    }
+
+    /**
+     * Check if it's a draw.
+     *
+     * @return bool
+     */
+    public function isDraw()
+    {
+        return !$this->hasAvailableMoves() &&
+            !$this->isWinner('X') &&
+            !$this->isWinner('O');
+    }
+
+    /**
+     * Check if the game has finished
+     *
+     * @return bool
+     */
+    public function isFinished()
+    {
+        return $this->isWinner('X') || $this->isWinner('O') || $this->isDraw();
+    }
+
+    /**
+     * Get the result letter for a player in the current board.
+     *
+     * @param string $playerUnit
+     * @return string|null
+     */
+    public function getResultFor(string $playerUnit = 'O')
+    {
+        return $this->isDraw()
+            ? 'D'
+            : ($this->isWinner($playerUnit)
+                ? 'W'
+                : ($this->isWinner(infer_opponent($playerUnit))
+                    ? 'L'
+                    : null));
+    }
+
+    /**
+     * Get column result for.
+     *
+     * @param string $playerUnit
+     * @return bool
+     */
+    public function getColumnResultFor(string $playerUnit = 'O'): bool
+    {
+        return $this->winByColumn($playerUnit) !== false ?:
+            $this->winByColumn(infer_opponent($playerUnit)) !== false;
+    }
+
+    /**
+     * Get column result for.
+     *
+     * @param string $playerUnit
+     * @return bool
+     */
+    public function getRowResultFor(string $playerUnit = 'O'): bool
+    {
+        return $this->winByRow($playerUnit) !== false ?:
+            $this->winByRow(infer_opponent($playerUnit)) !== false;
+    }
+
+    /**
+     * Get column result for.
+     *
+     * @param string $playerUnit
+     * @return bool
+     */
+    public function getDiagonalResultFor(string $playerUnit = 'O'): bool
+    {
+        return $this->winByDiagonal($playerUnit) !== false ?:
+            $this->winByDiagonal(infer_opponent($playerUnit)) !== false;
     }
 
     /**
      * Check if player wins by a column.
      *
      * @param string $playerUnit
-     * @return bool
+     * @return bool|int
      */
-    protected function winByColumn(string $playerUnit): bool
+    protected function winByColumn(string $playerUnit)
     {
-        foreach (range(0, $this->getSize() - 1) as $column) {
+        foreach (range(0, $this->getSize() - 1) as $key => $column) {
             if (
                 implode('', array_column($this->getState(), $column)) ===
                 $this->getWinnerResult($playerUnit)
             ) {
-                return true;
+                return $key;
             }
         }
 
@@ -279,36 +344,39 @@ class Board
      * Check if player wins by a diagonal.
      *
      * @param string $playerUnit
-     * @return bool
+     * @return bool|int
      */
-    protected function winByDiagonal(string $playerUnit): bool
+    protected function winByDiagonal(string $playerUnit)
     {
+        $d0 = '';
         $d1 = '';
-        $d2 = '';
 
         for ($x = 0; $x <= $this->getSize() - 1; $x++) {
-            $d1 .= $this->getState()[$x][$x];
+            $d0 .= $this->getState()[$x][$x];
         }
 
         for ($x = 0; $x <= $this->getSize() - 1; $x++) {
-            $d2 .= $this->getState()[$x][$this->getSize() - 1 - $x];
+            $d1 .= $this->getState()[$x][$this->getSize() - 1 - $x];
         }
 
-        return $d1 === $this->getWinnerResult($playerUnit) ||
-            $d2 === $this->getWinnerResult($playerUnit);
+        return $d0 === $this->getWinnerResult($playerUnit)
+            ? 0
+            : ($d1 === $this->getWinnerResult($playerUnit)
+                ? 1
+                : false);
     }
 
     /**
      * Check if player wins by a row.
      *
      * @param string $playerUnit
-     * @return bool
+     * @return bool|int
      */
-    protected function winByRow(string $playerUnit): bool
+    protected function winByRow(string $playerUnit)
     {
-        foreach ($this->getState() as $row) {
+        foreach ($this->getState() as $key => $row) {
             if (implode('', $row) === $this->getWinnerResult($playerUnit)) {
-                return true;
+                return $key;
             }
         }
 
@@ -333,7 +401,7 @@ class Board
      */
     public function hasAvailableMoves(): bool
     {
-        return strlen(implode('', $this->flatten())) !== $this->getSize();
+        return count($this->getAvailableMoves()) > 0;
     }
 
     /**

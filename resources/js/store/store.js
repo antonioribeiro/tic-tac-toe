@@ -20,14 +20,12 @@ import * as mutations from './mutations'
  * Modules
  */
 import environment from './modules/environment'
-import dashboard from './modules/dashboard'
+import ticTacToe from './modules/ticTacToe'
 
 /**
  * State
  */
-const state = {
-    mounted: false,
-}
+const state = {}
 
 /**
  * Store
@@ -38,11 +36,9 @@ let store = new Vuex.Store({
     getters,
     mutations,
     modules: {
+        ticTacToe,
         environment,
-        dashboard,
     },
 })
-
-store.dispatch('environment/absorb')
 
 export default store

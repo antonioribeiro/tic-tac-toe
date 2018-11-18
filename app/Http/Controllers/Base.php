@@ -29,6 +29,17 @@ class Base
     }
 
     /**
+     * Get request param.
+     *
+     * @param string $fieldName
+     * @return mixed
+     */
+    public function getParam(string $fieldName)
+    {
+        return $this->request->get($fieldName);
+    }
+
+    /**
      * Initialize base controller.
      *
      * @param Request|null $request
@@ -55,17 +66,6 @@ class Base
         $response->headers->set('Content-Type', 'application/json');
 
         return $response;
-    }
-
-    /**
-     * Get request param.
-     *
-     * @param string $fieldName
-     * @return mixed
-     */
-    public function getParam(string $fieldName)
-    {
-        return $this->request->get($fieldName);
     }
 
     /**

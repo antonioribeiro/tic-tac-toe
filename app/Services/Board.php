@@ -30,40 +30,6 @@ class Board
         $this->generateBoard($boardState, $size);
     }
 
-    protected function strigBoardStateToArray($boardState)
-    {
-        if (is_array($boardState)) {
-            return $boardState;
-        }
-
-        return explode(',', $boardState);
-    }
-
-    /**
-     * UnFlatten a flattened board.
-     *
-     * @param array $boardState
-     * @return array
-     */
-    public function unFlatten(array $boardState)
-    {
-        if (
-            sizeof($boardState) === 0 ||
-            sizeof($boardState) !== sizeof($boardState, 1)
-        ) {
-            return $boardState;
-        }
-
-        $size = (int) sqrt(sizeof($boardState));
-
-        return array_chunk(
-            array_map(function ($value) {
-                return is_numeric($value) ? '' : $value;
-            }, $boardState),
-            $size
-        );
-    }
-
     /**
      * Check if we have a correct board size.
      *
@@ -84,48 +50,36 @@ class Board
     }
 
     /**
-     * Check if move is available.
+     * Convert a 1D move to a 2D.
      *
-     * @param int $col
-     * @param int $row
-     * @return bool
+     * @param int $move
+     * @return array
      */
-    protected function moveIsAvailable(int $col, int $row): bool
+    public function convertTo2DMove(int $move): array
     {
-        return trim($this->boardState[$row][$col]) === '';
+        return [$move % $this->getSize(), abs($move / $this->getSize())];
     }
 
     /**
-     * If move is not available, throw exception.
+     * Flatten the board.
      *
-     * @param int $col
-     * @param int $row
-     * @throws MoveNotAvailableException
+     * @return array
      */
-    protected function throwIfMoveIsNotAvailable(int $col, int $row)
+    public function flatten(): array
     {
-        if (!$this->moveIsAvailable($col, $row)) {
-            throw new MoveNotAvailableException();
-        }
-    }
+        $state = array_merge(...$this->getState());
 
-    /**
-     * Check if a move is currently available.
-     *
-     * @param int $col
-     * @param int $row
-     * @throws WrongMoveException
-     */
-    protected function throwIfMoveIsNotGood(int $col, int $row)
-    {
-        if (
-            $row < 0 ||
-            $row > $this->getSize() - 1 ||
-            $col < 0 ||
-            $col > $this->getSize() - 1
-        ) {
-            throw new WrongMoveException();
+        $counter = 0;
+
+        foreach ($state as $key => $item) {
+            if ($item === '') {
+                $state[$key] = $counter;
+            }
+
+            $counter++;
         }
+
+        return $state;
     }
 
     /**
@@ -170,101 +124,35 @@ class Board
     }
 
     /**
-     * Get the current board size.
-     *
-     * @return int
+     * Get flatten array with available moves.
      */
-    protected function getSize(): int
+    public function getAvailableMoves(): array
     {
-        return count($this->boardState);
+        return $this->filterAvailableMoves($this->flatten());
     }
 
     /**
-     * Get the current board state.
-     *
-     * @return array
-     */
-    public function getState(): array
-    {
-        return $this->boardState;
-    }
-
-    /**
-     * Register a move in the current board.
-     *
-     * @param int $col
-     * @param int $row
-     * @param string $playerUnit
-     * @return Board
-     * @throws WrongMoveException
-     * @throws MoveNotAvailableException
-     */
-    public function registerMove(int $col, int $row, string $playerUnit): Board
-    {
-        $this->throwIfMoveIsNotGood($col, $row);
-
-        $this->throwIfMoveIsNotAvailable($col, $row);
-
-        $this->boardState[$row][$col] = $playerUnit;
-
-        return $this;
-    }
-
-    /**
-     * Flatten the board.
-     *
-     * @return array
-     */
-    public function flatten(): array
-    {
-        $state = array_merge(...$this->getState());
-
-        $counter = 0;
-
-        foreach ($state as $key => $item) {
-            if ($item === '') {
-                $state[$key] = $counter;
-            }
-
-            $counter++;
-        }
-
-        return $state;
-    }
-
-    /**
-     * Check if player wins the game.
+     * Get column result for.
      *
      * @param string $playerUnit
      * @return bool
      */
-    public function isWinner(string $playerUnit)
+    public function getColumnResultFor(string $playerUnit = 'O'): bool
     {
-        return $this->winByRow($playerUnit) !== false ||
-            $this->winByColumn($playerUnit) !== false ||
-            $this->winByDiagonal($playerUnit) !== false;
+        return $this->winByColumn($playerUnit) !== false ?:
+            $this->winByColumn(infer_opponent($playerUnit)) !== false;
     }
 
     /**
-     * Check if it's a draw.
+     * Get column result for.
      *
+     * @param string $playerUnit
      * @return bool
      */
-    public function isDraw()
+    public function getDiagonalResultFor(string $playerUnit = 'O'): bool
     {
-        return !$this->hasAvailableMoves() &&
-            !$this->isWinner('X') &&
-            !$this->isWinner('O');
-    }
-
-    /**
-     * Check if the game has finished
-     *
-     * @return bool
-     */
-    public function isFinished()
-    {
-        return $this->isWinner('X') || $this->isWinner('O') || $this->isDraw();
+        return $this->winByDiagonal($playerUnit) !== false ?:
+            $this->winByDiagonal(infer_opponent($playerUnit)) !== false;
     }
 
     /**
@@ -290,18 +178,6 @@ class Board
      * @param string $playerUnit
      * @return bool
      */
-    public function getColumnResultFor(string $playerUnit = 'O'): bool
-    {
-        return $this->winByColumn($playerUnit) !== false ?:
-            $this->winByColumn(infer_opponent($playerUnit)) !== false;
-    }
-
-    /**
-     * Get column result for.
-     *
-     * @param string $playerUnit
-     * @return bool
-     */
     public function getRowResultFor(string $playerUnit = 'O'): bool
     {
         return $this->winByRow($playerUnit) !== false ?:
@@ -309,15 +185,179 @@ class Board
     }
 
     /**
-     * Get column result for.
+     * Get the current board size.
+     *
+     * @return int
+     */
+    protected function getSize(): int
+    {
+        return count($this->boardState);
+    }
+
+    /**
+     * Get the current board state.
+     *
+     * @return array
+     */
+    public function getState(): array
+    {
+        return $this->boardState;
+    }
+
+    /**
+     * Get the winner result for a player.
+     *
+     * @param string $playerUnit
+     * @return string
+     */
+    protected function getWinnerResult(string $playerUnit): string
+    {
+        return str_repeat($playerUnit, $this->getSize());
+    }
+
+    /**
+     * Check if the board still has available moves.
+     *
+     * @return bool
+     */
+    public function hasAvailableMoves(): bool
+    {
+        return count($this->getAvailableMoves()) > 0;
+    }
+
+    /**
+     * Check if it's a draw.
+     *
+     * @return bool
+     */
+    public function isDraw()
+    {
+        return !$this->hasAvailableMoves() &&
+            !$this->isWinner('X') &&
+            !$this->isWinner('O');
+    }
+
+    /**
+     * Check if the game has finished
+     *
+     * @return bool
+     */
+    public function isFinished()
+    {
+        return $this->isWinner('X') || $this->isWinner('O') || $this->isDraw();
+    }
+
+    /**
+     * Check if player wins the game.
      *
      * @param string $playerUnit
      * @return bool
      */
-    public function getDiagonalResultFor(string $playerUnit = 'O'): bool
+    public function isWinner(string $playerUnit)
     {
-        return $this->winByDiagonal($playerUnit) !== false ?:
-            $this->winByDiagonal(infer_opponent($playerUnit)) !== false;
+        return $this->winByRow($playerUnit) !== false ||
+            $this->winByColumn($playerUnit) !== false ||
+            $this->winByDiagonal($playerUnit) !== false;
+    }
+
+    /**
+     * Check if move is available.
+     *
+     * @param int $col
+     * @param int $row
+     * @return bool
+     */
+    protected function moveIsAvailable(int $col, int $row): bool
+    {
+        return trim($this->boardState[$row][$col]) === '';
+    }
+
+    /**
+     * Register a move in the current board.
+     *
+     * @param int $col
+     * @param int $row
+     * @param string $playerUnit
+     * @return Board
+     * @throws WrongMoveException
+     * @throws MoveNotAvailableException
+     */
+    public function registerMove(int $col, int $row, string $playerUnit): Board
+    {
+        $this->throwIfMoveIsNotGood($col, $row);
+
+        $this->throwIfMoveIsNotAvailable($col, $row);
+
+        $this->boardState[$row][$col] = $playerUnit;
+
+        return $this;
+    }
+
+    protected function strigBoardStateToArray($boardState)
+    {
+        if (is_array($boardState)) {
+            return $boardState;
+        }
+
+        return explode(',', $boardState);
+    }
+
+    /**
+     * If move is not available, throw exception.
+     *
+     * @param int $col
+     * @param int $row
+     * @throws MoveNotAvailableException
+     */
+    protected function throwIfMoveIsNotAvailable(int $col, int $row)
+    {
+        if (!$this->moveIsAvailable($col, $row)) {
+            throw new MoveNotAvailableException();
+        }
+    }
+
+    /**
+     * Check if a move is currently available.
+     *
+     * @param int $col
+     * @param int $row
+     * @throws WrongMoveException
+     */
+    protected function throwIfMoveIsNotGood(int $col, int $row)
+    {
+        if (
+            $row < 0 ||
+            $row > $this->getSize() - 1 ||
+            $col < 0 ||
+            $col > $this->getSize() - 1
+        ) {
+            throw new WrongMoveException();
+        }
+    }
+
+    /**
+     * UnFlatten a flattened board.
+     *
+     * @param array $boardState
+     * @return array
+     */
+    public function unFlatten(array $boardState)
+    {
+        if (
+            sizeof($boardState) === 0 ||
+            sizeof($boardState) !== sizeof($boardState, 1)
+        ) {
+            return $boardState;
+        }
+
+        $size = (int) sqrt(sizeof($boardState));
+
+        return array_chunk(
+            array_map(function ($value) {
+                return is_numeric($value) ? '' : $value;
+            }, $boardState),
+            $size
+        );
     }
 
     /**
@@ -381,45 +421,5 @@ class Board
         }
 
         return false;
-    }
-
-    /**
-     * Get the winner result for a player.
-     *
-     * @param string $playerUnit
-     * @return string
-     */
-    protected function getWinnerResult(string $playerUnit): string
-    {
-        return str_repeat($playerUnit, $this->getSize());
-    }
-
-    /**
-     * Check if the board still has available moves.
-     *
-     * @return bool
-     */
-    public function hasAvailableMoves(): bool
-    {
-        return count($this->getAvailableMoves()) > 0;
-    }
-
-    /**
-     * Get flatten array with available moves.
-     */
-    public function getAvailableMoves(): array
-    {
-        return $this->filterAvailableMoves($this->flatten());
-    }
-
-    /**
-     * Convert a 1D move to a 2D.
-     *
-     * @param int $move
-     * @return array
-     */
-    public function convertTo2DMove(int $move): array
-    {
-        return [$move % $this->getSize(), abs($move / $this->getSize())];
     }
 }

@@ -8,23 +8,6 @@ use Symfony\Component\HttpFoundation\Response;
 class TicTacToe extends Base
 {
     /**
-     * Play and send back a new board.
-     *
-     * @return Response
-     * @throws \App\Exceptions\WrongBoardSizeException
-     */
-    public function play(): Response
-    {
-        return $this->jsonResponse(
-            $this->makeBoardResult(
-                (new TicTacToeService($this->getParam('board')))->setOpponent(
-                    $this->getParam('player')
-                )
-            )
-        );
-    }
-
-    /**
      * Make the board result.
      *
      * @param TicTacToeService $ticTacToe
@@ -50,5 +33,22 @@ class TicTacToe extends Base
                 ->getDiagonalResultFor($ticTacToe->getOpponent()),
             'finished' => $ticTacToe->getBoard()->isFinished(),
         ];
+    }
+
+    /**
+     * Play and send back a new board.
+     *
+     * @return Response
+     * @throws \App\Exceptions\WrongBoardSizeException
+     */
+    public function play(): Response
+    {
+        return $this->jsonResponse(
+            $this->makeBoardResult(
+                (new TicTacToeService($this->getParam('board')))->setOpponent(
+                    $this->getParam('player')
+                )
+            )
+        );
     }
 }

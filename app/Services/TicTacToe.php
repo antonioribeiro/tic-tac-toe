@@ -51,6 +51,26 @@ class TicTacToe
     }
 
     /**
+     * Get the current opponent.
+     *
+     * @return string
+     */
+    public function getOpponent(): string
+    {
+        return $this->opponent;
+    }
+
+    /**
+     * Get the current player.
+     *
+     * @return string
+     */
+    public function getPlayer(): string
+    {
+        return $this->getOpponent() === 'O' ? 'X' : 'O';
+    }
+
+    /**
      * Initialize game.
      *
      * @param array|string $boardState
@@ -116,26 +136,6 @@ class TicTacToe
         }
 
         return $this;
-    }
-
-    /**
-     * Get the current opponent.
-     *
-     * @return string
-     */
-    public function getOpponent(): string
-    {
-        return $this->opponent;
-    }
-
-    /**
-     * Get the current player.
-     *
-     * @return string
-     */
-    public function getPlayer(): string
-    {
-        return $this->getOpponent() === 'O' ? 'X' : 'O';
     }
 
     /**

@@ -79,6 +79,37 @@ class Request
         return SymfonyRequest::createFromGlobals();
     }
 
+    /**
+     * Get the request parameters.
+     *
+     * @param string $paramName
+     * @return mixed
+     */
+    public function get(string $paramName)
+    {
+        return $this->request->get($paramName);
+    }
+
+    /**
+     * Gets the request "intended" method.
+     *
+     * @return string
+     */
+    public function getMethod()
+    {
+        return $this->request->getMethod();
+    }
+
+    /**
+     * Returns the path being requested relative to the executed script.
+     *
+     * @return string
+     */
+    public function getPathInfo()
+    {
+        return $this->request->getPathInfo();
+    }
+
     private function initialize(
         array $query,
         array $request,
@@ -125,36 +156,5 @@ class Request
             !$files &&
             !$server &&
             !$content;
-    }
-
-    /**
-     * Gets the request "intended" method.
-     *
-     * @return string
-     */
-    public function getMethod()
-    {
-        return $this->request->getMethod();
-    }
-
-    /**
-     * Get the request parameters.
-     *
-     * @param string $paramName
-     * @return mixed
-     */
-    public function get(string $paramName)
-    {
-        return $this->request->get($paramName);
-    }
-
-    /**
-     * Returns the path being requested relative to the executed script.
-     *
-     * @return string
-     */
-    public function getPathInfo()
-    {
-        return $this->request->getPathInfo();
     }
 }

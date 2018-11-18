@@ -2,88 +2,53 @@
 
 namespace App\Http\Controllers;
 
-use App\Services\Board;
-use Symfony\Component\HttpFoundation\Response;
 use App\Services\TicTacToe as TicTacToeService;
+use Symfony\Component\HttpFoundation\Response;
 
 class TicTacToe extends Base
 {
     /**
-     * Get the current opponent.
+     * Play and send back a new board.
      *
-     * @return string
+     * @return Response
+     * @throws \App\Exceptions\WrongBoardSizeException
      */
-    protected function getOpponent(): string
+    public function play(): Response
     {
-        return $this->getParam('player');
-    }
-
-    /**
-     * Get the current player.
-     *
-     * @return string
-     */
-    protected function getPlayer(): string
-    {
-        return $this->getOpponent() === 'O' ? 'X' : 'O';
+        return $this->jsonResponse(
+            $this->makeBoardResult(
+                (new TicTacToeService($this->getParam('board')))->setOpponent(
+                    $this->getParam('player')
+                )
+            )
+        );
     }
 
     /**
      * Make the board result.
      *
-     * @param array $boardState
+     * @param TicTacToeService $ticTacToe
      * @return array
-     * @throws \App\Exceptions\WrongBoardSizeException
      */
-    protected function makeBoardResult(array $boardState): array
+    protected function makeBoardResult(TicTacToeService $ticTacToe): array
     {
-        $board = new Board($boardState);
-
         return [
-            'board' => $board->getState(),
-            'player' => $this->getOpponent(),
-            'opponent' => $this->getPlayer(),
-            'result' => $board->getResultFor($this->getOpponent()),
-            'column' => $board->getColumnResultFor($this->getOpponent()),
-            'row' => $board->getRowResultFor($this->getOpponent()),
-            'diagonal' => $board->getDiagonalResultFor($this->getOpponent()),
-            'finished' => $board->isFinished(),
+            'board' => $ticTacToe->getBoard()->getState(),
+            'player' => $ticTacToe->getOpponent(),
+            'opponent' => $ticTacToe->getPlayer(),
+            'result' => $ticTacToe
+                ->getBoard()
+                ->getResultFor($ticTacToe->getOpponent()),
+            'column' => $ticTacToe
+                ->getBoard()
+                ->getColumnResultFor($ticTacToe->getOpponent()),
+            'row' => $ticTacToe
+                ->getBoard()
+                ->getRowResultFor($ticTacToe->getOpponent()),
+            'diagonal' => $ticTacToe
+                ->getBoard()
+                ->getDiagonalResultFor($ticTacToe->getOpponent()),
+            'finished' => $ticTacToe->getBoard()->isFinished(),
         ];
-    }
-
-    /**
-     * Play and send back a new board.
-     *
-     * @return Response
-     * @throws \App\Exceptions\MoveNotAvailableException
-     * @throws \App\Exceptions\WrongBoardSizeException
-     * @throws \App\Exceptions\WrongMoveException
-     */
-    public function play(): Response
-    {
-        return $this->jsonResponse(
-            $this->makeBoardResult($this->registerAndPlay())
-        );
-    }
-
-    /**
-     * Register an opponent move and make AI play a move.
-     *
-     * @return array
-     * @throws \App\Exceptions\MoveNotAvailableException
-     * @throws \App\Exceptions\WrongBoardSizeException
-     * @throws \App\Exceptions\WrongMoveException
-     */
-    protected function registerAndPlay(): array
-    {
-        return (new TicTacToeService($this->getParam('board')))
-            ->opponentMove(
-                $this->getParam('column'),
-                $this->getParam('row'),
-                $this->getOpponent()
-            )
-            ->play($this->getPlayer())
-            ->getBoard()
-            ->getState();
     }
 }

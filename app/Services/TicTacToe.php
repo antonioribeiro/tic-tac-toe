@@ -15,6 +15,13 @@ class TicTacToe
     protected $board;
 
     /**
+     * The current opponent player.
+     *
+     * @var Board
+     */
+    protected $opponent;
+
+    /**
      * Our artificial intelligence being.
      *
      * @var AI
@@ -107,6 +114,58 @@ class TicTacToe
                 $nextMove[2]
             );
         }
+
+        return $this;
+    }
+
+    /**
+     * Get the current opponent.
+     *
+     * @return string
+     */
+    public function getOpponent(): string
+    {
+        return $this->opponent;
+    }
+
+    /**
+     * Get the current player.
+     *
+     * @return string
+     */
+    public function getPlayer(): string
+    {
+        return $this->getOpponent() === 'O' ? 'X' : 'O';
+    }
+
+    /**
+     * Register an opponent move and make AI play a move.
+     *
+     * @return array
+     * @throws \App\Exceptions\MoveNotAvailableException
+     * @throws \App\Exceptions\WrongMoveException
+     */
+    protected function registerAndPlay(): array
+    {
+        return $this->opponentMove(
+            $this->getParam('column'),
+            $this->getParam('row'),
+            $this->getOpponent()
+        )
+            ->play($this->getPlayer())
+            ->getBoard()
+            ->getState();
+    }
+
+    /**
+     * Set the current opponent player.
+     *
+     * @param string $player
+     * @return TicTacToe
+     */
+    public function setOpponent($player): TicTacToe
+    {
+        $this->opponent = $player;
 
         return $this;
     }

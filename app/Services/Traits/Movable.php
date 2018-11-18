@@ -39,6 +39,13 @@ trait Movable
     abstract protected function getSize(): int;
 
     /**
+     * Get the current board state.
+     *
+     * @return array
+     */
+    abstract public function getState(): array;
+
+    /**
      * Check if the board still has available moves.
      *
      * @return bool
@@ -57,7 +64,9 @@ trait Movable
      */
     protected function moveIsAvailable(int $col, int $row): bool
     {
-        return trim($this->boardState[$row][$col]) === '';
+        $state = $this->getState();
+
+        return trim($state[$row][$col]) === '';
     }
 
     /**
@@ -76,10 +85,21 @@ trait Movable
 
         $this->throwIfMoveIsNotAvailable($col, $row);
 
-        $this->boardState[$row][$col] = $playerUnit;
+        $state = $this->getState();
+
+        $state[$row][$col] = $playerUnit;
+
+        $this->setState($state);
 
         return $this;
     }
+
+    /**
+     * Set the board state.
+     *
+     * @param array $boardState
+     */
+    abstract public function setState(array $boardState): void;
 
     /**
      * If move is not available, throw exception.

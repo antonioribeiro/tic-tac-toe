@@ -143,6 +143,16 @@ class Board
         return $this->boardState;
     }
 
+    /**
+     * Set the board state.
+     *
+     * @param array $boardState
+     */
+    public function setState(array $boardState): void
+    {
+        $this->boardState = $boardState;
+    }
+
     protected function strigBoardStateToArray($boardState)
     {
         if (is_array($boardState)) {

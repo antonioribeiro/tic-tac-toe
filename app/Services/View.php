@@ -17,11 +17,15 @@ class View
     /**
      * Make a view.
      *
-     * @param $name
-     * @return false|string
+     * @param string $name
+     * @return string
      */
     public function make($name)
     {
-        return file_get_contents($this->getViewDirectory() . "/{$name}.html");
+        return ($view = file_get_contents(
+            $this->getViewDirectory() . "/{$name}.html"
+        ))
+            ? $view
+            : '';
     }
 }

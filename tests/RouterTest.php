@@ -49,7 +49,7 @@ class RouterTest extends \PHPUnit\Framework\TestCase
     {
         $this->expectException(NotFoundHttpException::class);
 
-        $matched = $this->router->match(
+        $this->router->match(
             new Request(
                 [],
                 [],

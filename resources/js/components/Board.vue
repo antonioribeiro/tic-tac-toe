@@ -47,7 +47,9 @@
                                                     </div>
                                                     Human
                                                     <small class="text-muted"
-                                                        >({{ human }})</small
+                                                        >({{
+                                                            score.human
+                                                        }})</small
                                                     >
                                                 </h1>
                                                 <h1
@@ -60,7 +62,7 @@
                                                     </div>
                                                     AI
                                                     <small class="text-muted"
-                                                        >({{ robot }})</small
+                                                        >({{ score.ai }})</small
                                                     >
                                                 </h1>
                                             </div>
@@ -126,35 +128,38 @@
 </template>
 
 <script>
+import { mapActions } from 'vuex'
+
 export default {
     props: [],
 
     data() {
         return {
             playing: false,
-            human: 0,
-            robot: 0,
         }
     },
 
     computed: {
         board() {
-            return this.$store.state.ticTacToe.game.board
+            return this.$store.state.game.board
         },
 
         game() {
-            return this.$store.state.ticTacToe.game
+            return this.$store.state.game
+        },
+
+        score() {
+            return this.$store.state.score
         },
 
         started() {
-            return (
-                this.$store.state.ticTacToe.game.board !==
-                this.$store.state.ticTacToe.emptyBoard
-            )
+            return this.$store.state.game.board !== this.$store.state.emptyBoard
         },
     },
 
     methods: {
+        ...mapActions(['addPointForHuman', 'addPointForAI']),
+
         play(move) {
             const params = new URLSearchParams()
 
@@ -166,7 +171,7 @@ export default {
             this.playing = move
 
             axios.post('/play', params).then(response => {
-                this.$store.commit('ticTacToe/setGame', response.data)
+                this.$store.commit('setGame', response.data)
 
                 this.playing = false
 
@@ -176,25 +181,25 @@ export default {
 
         restart() {
             if (!this.game.finished) {
-                this.robot++
+                this.ai++
             }
 
-            this.$store.commit('ticTacToe/restart')
+            this.$store.commit('restart')
         },
 
         checkResult() {
             if (this.game.finished) {
                 if (this.game.result === 'W') {
-                    this.human++
+                    this.addPointForHuman()
                 }
 
                 if (this.game.result === 'L') {
-                    this.robot++
+                    this.addPointForAI()
                 }
 
                 if (this.game.result === 'D') {
-                    this.human++
-                    this.robot++
+                    this.addPointForHuman()
+                    this.addPointForAI()
                 }
             }
         },

@@ -48356,13 +48356,9 @@ new Vue({
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_vue__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_vuex__ = __webpack_require__(38);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__actions__ = __webpack_require__(203);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__actions___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2__actions__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__getters__ = __webpack_require__(204);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__getters___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_3__getters__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__mutations__ = __webpack_require__(205);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__mutations___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_4__mutations__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__modules_environment__ = __webpack_require__(206);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__modules_ticTacToe__ = __webpack_require__(360);
 /**
  * Imports
  */
@@ -48382,29 +48378,34 @@ __WEBPACK_IMPORTED_MODULE_0_vue___default.a.use(__WEBPACK_IMPORTED_MODULE_1_vuex
 
 
 /**
- * Modules
- */
-
-
-
-/**
  * State
  */
-var state = {};
+var __newBoard = [['', '', ''], ['', '', ''], ['', '', '']];
 
-/**
- * Store
- */
-var store = new __WEBPACK_IMPORTED_MODULE_1_vuex__["default"].Store({
+var state = {
+  game: {
+    board: __newBoard,
+    emptyBoard: __newBoard
+  },
+
+  score: {
+    human: 0,
+    ai: 0
+  },
+
+  emptyBoard: __newBoard
+
+  /**
+   * Store
+   */
+};var store = new __WEBPACK_IMPORTED_MODULE_1_vuex__["default"].Store({
   state: state,
   actions: __WEBPACK_IMPORTED_MODULE_2__actions__,
   getters: __WEBPACK_IMPORTED_MODULE_3__getters__,
-  mutations: __WEBPACK_IMPORTED_MODULE_4__mutations__,
-  modules: {
-    ticTacToe: __WEBPACK_IMPORTED_MODULE_6__modules_ticTacToe__["a" /* default */],
-    environment: __WEBPACK_IMPORTED_MODULE_5__modules_environment__["a" /* default */]
-  }
+  mutations: __WEBPACK_IMPORTED_MODULE_4__mutations__
 });
+
+store.dispatch('loadScore');
 
 /* harmony default export */ __webpack_exports__["a"] = (store);
 
@@ -48673,9 +48674,37 @@ exports.clearImmediate = (typeof self !== "undefined" && self.clearImmediate) ||
 
 /***/ }),
 /* 203 */
-/***/ (function(module, exports) {
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
 
+"use strict";
+Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+/* harmony export (immutable) */ __webpack_exports__["addPointForHuman"] = addPointForHuman;
+/* harmony export (immutable) */ __webpack_exports__["addPointForAI"] = addPointForAI;
+/* harmony export (immutable) */ __webpack_exports__["saveScore"] = saveScore;
+/* harmony export (immutable) */ __webpack_exports__["loadScore"] = loadScore;
+function addPointForHuman(context) {
+    context.commit('addPointForHuman');
 
+    context.dispatch('saveScore');
+}
+
+function addPointForAI(context) {
+    context.commit('addPointForAI');
+
+    context.dispatch('saveScore');
+}
+
+function saveScore(context) {
+    window.localStorage.setItem('tictactoe.score', JSON.stringify(context.state.score));
+}
+
+function loadScore(context) {
+    var score = window.localStorage.getItem('tictactoe.score');
+
+    if (score) {
+        context.commit('setScore', JSON.parse(score));
+    }
+}
 
 /***/ }),
 /* 204 */
@@ -48685,32 +48714,37 @@ exports.clearImmediate = (typeof self !== "undefined" && self.clearImmediate) ||
 
 /***/ }),
 /* 205 */
-/***/ (function(module, exports) {
-
-
-
-/***/ }),
-/* 206 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-var state = {};
+Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+/* harmony export (immutable) */ __webpack_exports__["setGame"] = setGame;
+/* harmony export (immutable) */ __webpack_exports__["restart"] = restart;
+/* harmony export (immutable) */ __webpack_exports__["addPointForHuman"] = addPointForHuman;
+/* harmony export (immutable) */ __webpack_exports__["addPointForAI"] = addPointForAI;
+/* harmony export (immutable) */ __webpack_exports__["setScore"] = setScore;
+function setGame(state, payload) {
+    state.game = payload;
+}
 
-var getters = {};
+function restart(state) {
+    state.game.board = state.game.emptyBoard;
+}
 
-var actions = {};
+function addPointForHuman(state) {
+    state.score.human = state.score.human + 1;
+}
 
-var mutations = {};
+function addPointForAI(state) {
+    state.score.ai = state.score.ai + 1;
+}
 
-/* harmony default export */ __webpack_exports__["a"] = ({
-    state: state,
-    getters: getters,
-    actions: actions,
-    mutations: mutations,
-    namespaced: true
-});
+function setScore(state, payload) {
+    state.score = payload;
+}
 
 /***/ }),
+/* 206 */,
 /* 207 */,
 /* 208 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
@@ -81168,6 +81202,9 @@ module.exports = function normalizeComponent (
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_vuex__ = __webpack_require__(38);
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
 //
 //
 //
@@ -81295,32 +81332,37 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
+//
+
+
 
 /* harmony default export */ __webpack_exports__["default"] = ({
     props: [],
 
     data: function data() {
         return {
-            playing: false,
-            human: 0,
-            robot: 0
+            playing: false
         };
     },
 
 
     computed: {
         board: function board() {
-            return this.$store.state.ticTacToe.game.board;
+            return this.$store.state.game.board;
         },
         game: function game() {
-            return this.$store.state.ticTacToe.game;
+            return this.$store.state.game;
+        },
+        score: function score() {
+            return this.$store.state.score;
         },
         started: function started() {
-            return this.$store.state.ticTacToe.game.board !== this.$store.state.ticTacToe.emptyBoard;
+            return this.$store.state.game.board !== this.$store.state.emptyBoard;
         }
     },
 
-    methods: {
+    methods: _extends({}, Object(__WEBPACK_IMPORTED_MODULE_0_vuex__["mapActions"])(['addPointForHuman', 'addPointForAI']), {
         play: function play(move) {
             var _this = this;
 
@@ -81334,7 +81376,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
             this.playing = move;
 
             axios.post('/play', params).then(function (response) {
-                _this.$store.commit('ticTacToe/setGame', response.data);
+                _this.$store.commit('setGame', response.data);
 
                 _this.playing = false;
 
@@ -81343,28 +81385,28 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
         },
         restart: function restart() {
             if (!this.game.finished) {
-                this.robot++;
+                this.ai++;
             }
 
-            this.$store.commit('ticTacToe/restart');
+            this.$store.commit('restart');
         },
         checkResult: function checkResult() {
             if (this.game.finished) {
                 if (this.game.result === 'W') {
-                    this.human++;
+                    this.addPointForHuman();
                 }
 
                 if (this.game.result === 'L') {
-                    this.robot++;
+                    this.addPointForAI();
                 }
 
                 if (this.game.result === 'D') {
-                    this.human++;
-                    this.robot++;
+                    this.addPointForHuman();
+                    this.addPointForAI();
                 }
             }
         }
-    }
+    })
 });
 
 /***/ }),
@@ -81435,7 +81477,7 @@ var render = function() {
                               "\n                                                Human\n                                                "
                             ),
                             _c("small", { staticClass: "text-muted" }, [
-                              _vm._v("(" + _vm._s(_vm.human) + ")")
+                              _vm._v("(" + _vm._s(_vm.score.human) + ")")
                             ])
                           ]
                         ),
@@ -81452,7 +81494,7 @@ var render = function() {
                               "\n                                                AI\n                                                "
                             ),
                             _c("small", { staticClass: "text-muted" }, [
-                              _vm._v("(" + _vm._s(_vm.robot) + ")")
+                              _vm._v("(" + _vm._s(_vm.score.ai) + ")")
                             ])
                           ]
                         )
@@ -81724,42 +81766,6 @@ if (false) {
     require("vue-hot-reload-api")      .rerender("data-v-9b5f6190", module.exports)
   }
 }
-
-/***/ }),
-/* 360 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-var __newBoard = [['', '', ''], ['', '', ''], ['', '', '']];
-
-var state = {
-    game: {
-        board: __newBoard
-    },
-
-    emptyBoard: __newBoard
-};
-
-var getters = {};
-
-var actions = {};
-
-var mutations = {
-    setGame: function setGame(state, payload) {
-        state.game = payload;
-    },
-    restart: function restart(state) {
-        state.game.board = __newBoard;
-    }
-};
-
-/* harmony default export */ __webpack_exports__["a"] = ({
-    state: state,
-    getters: getters,
-    actions: actions,
-    mutations: mutations,
-    namespaced: true
-});
 
 /***/ })
 /******/ ]);

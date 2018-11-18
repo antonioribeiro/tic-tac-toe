@@ -17,15 +17,23 @@ import * as getters from './getters'
 import * as mutations from './mutations'
 
 /**
- * Modules
- */
-import environment from './modules/environment'
-import ticTacToe from './modules/ticTacToe'
-
-/**
  * State
  */
-const state = {}
+const __newBoard = [['', '', ''], ['', '', ''], ['', '', '']]
+
+const state = {
+    game: {
+        board: __newBoard,
+        emptyBoard: __newBoard,
+    },
+
+    score: {
+        human: 0,
+        ai: 0,
+    },
+
+    emptyBoard: __newBoard,
+}
 
 /**
  * Store
@@ -35,10 +43,8 @@ let store = new Vuex.Store({
     actions,
     getters,
     mutations,
-    modules: {
-        ticTacToe,
-        environment,
-    },
 })
+
+store.dispatch('loadScore')
 
 export default store
